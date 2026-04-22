@@ -4,58 +4,34 @@ from geometry_msgs.msg import Twist # Наш главный герой для д
 
 class FigureMover(Node):
     def __init__(self):
-        # Создаем узел с именем 'cool_mover'
-        super().__init__('cool_mover')
-        
-        # Создаем издателя в топик /turtle1/cmd_vel (для черепашки)
-        # Если будешь запускать на реальном роботе, поменяй на '/cmd_vel'
-        self.publisher_ = self.create_publisher(Twist, '/turtle1/cmd_vel', 10)
-        
-        # Таймер работает часто (10 раз в секунду), чтобы мы могли точно считать время
-        self.timer = self.create_timer(0.1, self.timer_callback)
-        
-        # Наши переменные состояния (в "кармане" self)
-        self.start_time = self.get_clock().now() # Засекаем время старта
-        self.phase = "FORWARD" # Текущая фаза движения
-
-    def timer_callback(self):
+        super().__init__('motorpins')
+        self.create.publisher_()
+        self.publisher_ = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.timer_for1()
+        self.declare_parameter("left_motor_pin",0)
+        self.declare_parameter("right_motor_pin",1)
+        leftPin = self.get_parameter('left_motor_pin').value
+        rightPin = self.get_parameter('right_motor_pin').value
+        self.get_logger().info(f"r motor on:{rightPin},l motor on:{leftPin}")
+        self.lifetime = 0.0
+    def timer_for1(self):
+        self.timer = self.create_timer(0.1, self.timercallback)
+    def timercallback(self):
         msg = Twist()
-        # Считаем, сколько секунд прошло с момента старта
-        now = self.get_clock().now()
-        elapsed = (now - self.start_time).nanoseconds / 1e9 # Перевод из наносекунд в секунды
-
-        # ЛОГИКА: 2 секунды едем, потом 1 секунду поворачиваем
-        if self.phase == "FORWARD":
-            msg.linear.x = 2.0  # Скорость вперед
-            msg.angular.z = 0.0 # Не поворачиваем
-            if elapsed > 2.0:   # Если прошло больше 2 сек
-                self.phase = "TURN"
-                self.start_time = now # Сбрасываем таймер для новой фазы
-        
-        elif self.phase == "TURN":
-            msg.linear.x = 0.0  # Стоим на месте
-            msg.angular.z = 1.57 # Поворот (90 градусов в секунду)
-            if elapsed > 1.0:   # Поворачиваем ровно 1 секунду
-                self.phase = "FORWARD"
-                self.start_time = now # Опять сбрасываем время
-
-        # Отправляем команду
+        msg.linear.x = self.lifetime
+        msg.linear.x = 0.0
+        msg.angular.z = 0.0
         self.publisher_.publish(msg)
-        self.get_logger().info(f'Стадия: {self.phase}, время: {elapsed:.1f}')
+        self.lifetime += 0.5
+        msg.linear.x += 0.1
+        self.get_logger().info(f"speed_increasing:"{self.lifetime})
+        if msg.linear.x ==1.0:
+        msg.linear.x = 0
+        if self.lifetime == 1.0:
+            stop.msg = Twist()
+            self.publisher_.publish(stop_msg)
+            self.timer.cancel()
 
-def main():
-    rclpy.init()
-    node = FigureMover()
-    try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        # При остановке шлем пустой Twist, чтобы робот не уехал в бесконечность
-        stop_msg = Twist()
-        node.publisher_.publish(stop_msg)
-        node.get_logger().info('Робот остановлен!')
+
     
-    rclpy.shutdown()
-
-if __name__ == '__main__':
-    main()
-    ###yapedr
+        
