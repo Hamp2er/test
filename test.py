@@ -26,7 +26,7 @@ class FigureMover(Node):
         self.publisher_.publish(msg)
         self.lifetime += 0.5
         msg.linear.x += 0.1
-        self.get_logger().info(f"speed_increasing:"{self.lifetime})
+        self.get_logger().info(f"speed_increasing:"{lifetime})
         if msg.linear.x ==1.0:
         msg.linear.x = 0
         if self.lifetime == 1.0:
