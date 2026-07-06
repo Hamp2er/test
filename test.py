@@ -1,7 +1,7 @@
 from std_msgs.msg import Float64
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import Twist # Наш главный герой для движения
+from geometry_msgs.msg import Twist 
 
 class FigureMover(Node):
     def __init__(self):
